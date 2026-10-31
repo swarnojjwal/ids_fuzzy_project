@@ -1,8 +1,4 @@
-
-streamlit
-numpy
-pandas
-plotly
-scikit-fuzzy
-scikit-learn
-networkx
+streamlit>=1.40
+plotly>=5.20
+pandas>=2.0
+numpy>=1.24
