@@ -293,6 +293,11 @@ def score_records(df, source, ev):
     out["mamdani_class"] = classify(res["mamdani_risk"].values, *ev["thr"]["mamdani"])
     out["sugeno_class"] = classify(res["sugeno_risk"].values, *ev["thr"]["sugeno"])
     out["agree"] = out["mamdani_class"] == out["sugeno_class"]
+    # The three input values the fuzzy systems actually used (missing / invalid values already replaced by the
+    # training median, clipped to the allowed range). They are stored with every manual, CSV and simulated record.
+    xn = preprocess(df, med)
+    for v, cfg in VARIABLES.items():
+        out[v] = (xn[v].values * cfg["cap"]).round(4)
     return out.reset_index(drop=True), m_fire, s_fire
 
 
@@ -561,9 +566,7 @@ def monitor_view(auto, n, ev):
     show(style(fig, "Alerts per batch", 360, xtitle="Batch number", ytitle="Alerts (Suspicious + Malicious)"))
 
     st.markdown("##### Prediction history (latest 100)")
-    cols = ["event", "time", "source", "actual", "family", "mamdani_risk", "mamdani_class", "sugeno_risk",
-            "sugeno_class", "agree"]
-    st.dataframe(h[cols].tail(100).iloc[::-1], width="stretch", hide_index=True)
+    ui.history_table(h.tail(100).iloc[::-1])
 
 
 def page_monitor(ev):
