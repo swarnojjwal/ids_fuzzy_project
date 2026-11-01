@@ -112,3 +112,32 @@ def confusion_figure(c, title):
                                textfont=dict(size=20, color="white")))
     fig.update_yaxes(autorange="reversed")
     return style(fig, title, 330)
+
+
+# ---------------------------------------------------------------- prediction history table
+HISTORY_COLUMNS = ["event", "time", "actual", "count", "serror_rate", "dst_host_srv_count",
+                   "mamdani_risk", "mamdani_class", "sugeno_risk", "sugeno_class", "agree"]
+
+
+def history_table(h):
+    """Prediction history: the three fuzzy input values next to the two risk scores and classes.
+    Columns missing from older history rows are shown as empty cells instead of raising an error."""
+    cc = st.column_config
+    st.dataframe(
+        h.reindex(columns=HISTORY_COLUMNS), width="stretch", hide_index=True,
+        column_config={
+            "event": cc.NumberColumn("Event", format="%d"),
+            "time": cc.TextColumn("Time"),
+            "actual": cc.TextColumn("Actual"),
+            "count": cc.NumberColumn("Connection count", format="%.0f",
+                                     help="Connections to the same host in the recent time window"),
+            "serror_rate": cc.NumberColumn("SYN error rate", format="%.3f",
+                                           help="Share of connections with SYN errors (0 to 1)"),
+            "dst_host_srv_count": cc.NumberColumn("Destination-host service count", format="%.0f",
+                                                  help="Connections to the same service on the destination host"),
+            "mamdani_risk": cc.NumberColumn("Mamdani risk", format="%.2f"),
+            "mamdani_class": cc.TextColumn("Mamdani class"),
+            "sugeno_risk": cc.NumberColumn("Sugeno risk", format="%.2f"),
+            "sugeno_class": cc.TextColumn("Sugeno class"),
+            "agree": cc.CheckboxColumn("Model agreement"),
+        })
